@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Öykü Eğitim & Danışmanlık Tatistoskop Çalışması</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0 url('logo.png') no-repeat center center;
+      background-size: 300px;
+      background-blend-mode: lighten;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+    }
+    h1 {
+      color: #5c3d74;
+      font-size: 22px;
+    }
+    input, button, select {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    #word {
+      font-size: 40px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    #result {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Öykü Eğitim & Danışmanlık Tatistoskop Çalışması</h1>
+    <div>
+      <label>Seviye:</label>
+      <select id="level">
+        <option value="easy">Kolay</option>
+        <option value="medium">Orta</option>
+        <option value="hard">Zor</option>
+      </select>
+      <label>Hız:</label>
+      <select id="speed">
+        <option value="1000">Yavaş</option>
+        <option value="500">Orta</option>
+        <option value="250">Hızlı</option>
+      </select>
+    </div>
+    <button onclick="toggleAutoLevel()">Otomatik Seviye: <span id="autoLabel">Kapalı</span></button>
+    <button onclick="startTest()">Başla</button>
+    <div id="word"></div>
+    <input type="text" id="inputWord" placeholder="Kelimeyi yazın" />
+    <button onclick="checkWord()">Kontrol Et</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const wordList = {
+      easy: ["masa", "elma", "baba", "ev", "kitap"],
+      medium: ["merdiven", "kütüphane", "bilgisayar", "televizyon"],
+      hard: ["sorumluluk", "gerçekçilik", "anlamlandırmak", "çözümleme"]
+    };
+
+    let currentLevel = "easy";
+    let wordIndex = 0;
+    let currentWord = "";
+    let autoLevel = false;
+    let correctCount = 0;
+    let timer = null;
+    let endTime = null;
+
+    function toggleAutoLevel() {
+      autoLevel = !autoLevel;
+      document.getElementById("autoLabel").innerText = autoLevel ? "Açık" : "Kapalı";
+    }
+
+    function startTest() {
+      currentLevel = document.getElementById("level").value;
+      wordIndex = 0;
+      correctCount = 0;
+      endTime = Date.now() + 2 * 60 * 1000; // 2 dakika
+      nextWord();
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => {
+        if (Date.now() >= endTime) {
+          clearInterval(timer);
+          document.getElementById("result").innerText = "Süre doldu! Ana sayfaya yönlendiriliyorsunuz...";
+          setTimeout(() => {
+            window.location.href = "https://sites.google.com/view/oykuegitimdanismanlik/ana-sayfa?authuser=0";
+          }, 5000);
+        }
+      }, 1000);
+    }
+
+    function nextWord() {
+      const list = wordList[currentLevel];
+      currentWord = list[wordIndex % list.length];
+      document.getElementById("word").innerText = currentWord;
+      document.getElementById("inputWord").value = "";
+      document.getElementById("result").innerText = "";
+    }
+
+    function checkWord() {
+      const input = document.getElementById("inputWord").value.trim();
+      if (input === currentWord) {
+        correctCount++;
+        document.getElementById("result").innerText = "Doğru!";
+        if (autoLevel && correctCount >= 3) {
+          if (currentLevel === "easy") currentLevel = "medium";
+          else if (currentLevel === "medium") currentLevel = "hard";
+          correctCount = 0;
+        }
+      } else {
+        document.getElementById("result").innerText = `Yanlış! Doğrusu: ${currentWord}`;
+        correctCount = 0;
+      }
+      wordIndex++;
+      nextWord();
+    }
+  </script>
+</body>
+</html>
